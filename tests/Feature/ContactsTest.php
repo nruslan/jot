@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use Carbon\Carbon;
 use App\Contact;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -14,18 +15,9 @@ class ContactsTest extends TestCase
     /** @test */
     public function a_contact_can_be_added()
     {
-        $this->withoutExceptionHandling();
-
-        $this->post('/api/contacts', [
-            'name' => 'Test Name',
-            'email' => 'test@email.com',
-            'birthday' => '05/14/1988',
-            'company' => 'ABC LLC',
-        ]);
+        $this->post('/api/contacts', $this->data());
 
         $contact = Contact::first();
-
-        //$this->assertCount(1, $contact);
 
         $this->assertEquals('Test Name', $contact->name);
         $this->assertEquals('test@email.com', $contact->email);
@@ -35,36 +27,74 @@ class ContactsTest extends TestCase
     }
 
     /** @test */
-    public function a_name_is_required()
+    public function filds_are_required()
     {
-        //$this->withoutExceptionHandling();
-
-        $response = $this->post('/api/contacts', [
-            'email' => 'test@email.com',
-            'birthday' => '05/14/1988',
-            'company' => 'ABC LLC',
-        ]);
-
-        $contact = Contact::first();
-
-        $response->assertSessionHasErrors('name');
-        $this->assertCount(0, Contact::all());
+        collect(['name', 'email', 'birthday', 'company'])
+            ->each(function($field) {
+                $response = $this->post('/api/contacts', array_merge($this->data(), [$field => '']));
+                $response->assertSessionHasErrors($field);
+                $this->assertCount(0, Contact::all());
+            });
     }
 
     /** @test */
-    public function an_email_is_required()
+    public function email_must_be_a_valid_email()
     {
-        //$this->withoutExceptionHandling();
-
-        $response = $this->post('/api/contacts', [
-            'name' => 'Test Name',
-            'birthday' => '05/14/1988',
-            'company' => 'ABC LLC',
-        ]);
-
-        $contact = Contact::first();
-
+        $response = $this->post('/api/contacts', array_merge($this->data(), ['email' => 'NOT AN EMAIL']));
         $response->assertSessionHasErrors('email');
         $this->assertCount(0, Contact::all());
+    }
+
+
+    /** @test */
+    public function birthdays_are_properly_stored()
+    {
+        $response = $this->post('/api/contacts',
+                            array_merge($this->data()));
+        
+        $this->assertCount(1, Contact::all());
+        $this->assertInstanceOf(Carbon::class, Contact::first()->birthday);
+    }
+
+
+    /** @test */
+    public function a_contact_can_be_retrievd()
+    {
+        $contact = factory(Contact::class)->create();
+
+        $response = $this->get("/api/contacts/$contact->id");
+
+        $response->assertJson([
+            'name' => $contact->name,
+            'email' => $contact->email,
+            'birthday' => $contact->birthday,
+            'company' => $contact->company,
+        ]);
+    }
+
+    /** @test */
+    public function a_contact_can_be_patched()
+    {
+        $this->withoutExceptionHandling();
+        $contact = factory(Contact::class)->create();
+
+        $respanse = $this->patch('/api/contacts/'. $contact->id, $this->data());
+
+        $contact = $contact->fresh();
+
+        $this->assertEquals('Test Name', $contact->name);
+        $this->assertEquals('test@email.com', $contact->email);
+        $this->assertEquals('05/14/1988', $contact->birthday->format('m/d/Y'));
+        $this->assertEquals('ABC LLC', $contact->company);
+    }
+
+    private function data()
+    {
+        return [
+            'name' => 'Test Name',
+            'email' => 'test@email.com',
+            'birthday' => '05/14/1988',
+            'company' => 'ABC LLC',
+        ];
     }
 }
