@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use Carbon\Carbon;
 use App\Contact;
+use PHPUnit\Framework\TestResult;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -21,7 +22,7 @@ class ContactsTest extends TestCase
 
         $this->assertEquals('Test Name', $contact->name);
         $this->assertEquals('test@email.com', $contact->email);
-        $this->assertEquals('05/14/1988', $contact->birthday);
+        $this->assertEquals('05/14/1988', $contact->birthday->format('m/d/Y'));
         $this->assertEquals('ABC LLC', $contact->company);
 
     }
@@ -58,7 +59,7 @@ class ContactsTest extends TestCase
 
 
     /** @test */
-    public function a_contact_can_be_retrievd()
+    public function a_contact_can_be_retrieved()
     {
         $contact = factory(Contact::class)->create();
 
@@ -78,7 +79,7 @@ class ContactsTest extends TestCase
         $this->withoutExceptionHandling();
         $contact = factory(Contact::class)->create();
 
-        $respanse = $this->patch('/api/contacts/'. $contact->id, $this->data());
+        $response = $this->patch('/api/contacts/'. $contact->id, $this->data());
 
         $contact = $contact->fresh();
 
@@ -86,6 +87,16 @@ class ContactsTest extends TestCase
         $this->assertEquals('test@email.com', $contact->email);
         $this->assertEquals('05/14/1988', $contact->birthday->format('m/d/Y'));
         $this->assertEquals('ABC LLC', $contact->company);
+    }
+
+    /** @test */
+    public function a_contact_can_be_deleted()
+    {
+        $contact = factory(Contact::class)->create();
+
+        $response = $this->delete('/api/contacts/' . $contact->id);
+
+        $this->assertCount(1, Contact::all());
     }
 
     private function data()
