@@ -35,7 +35,11 @@
             <div class="flex flex-col flex-1 h-screen overflow-y-hidden">
                 <div class="h-16 px-6 border-b border-gray-400 flex items-center justify-between">
                     <div>Contacts</div>
-                    <UserCircle :name="user.name"/>
+                    <div class="flex items-center">
+                        <SearchBar />
+                        <UserCircle :name="user.name"/>
+                    </div>
+                    
                 </div>
                 <div class="flex flex-col overflow-y-hidden flex-1">
                     <router-view class="p-6 overflow-x-hidden"></router-view>
@@ -48,6 +52,8 @@
 
 <script>
     import UserCircle from './UserCircle';
+    import SearchBar from '../components/SearchBar';
+
     export default {
         name: "App",
         
@@ -56,7 +62,8 @@
         ],
 
         components: {
-            UserCircle
+            UserCircle,
+            SearchBar
         },
 
         created() {
