@@ -1947,6 +1947,24 @@ __webpack_require__.r(__webpack_exports__);
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var lodash__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! lodash */ "./node_modules/lodash/lodash.js");
 /* harmony import */ var lodash__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(lodash__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _UserCircle__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./UserCircle */ "./resources/js/components/UserCircle.vue");
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 //
 //
 //
@@ -1954,12 +1972,17 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 
+
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: "SearchBar",
+  components: {
+    UserCircle: _UserCircle__WEBPACK_IMPORTED_MODULE_1__["default"]
+  },
   data: function data() {
     return {
       searchTerm: '',
-      results: ''
+      focus: false,
+      results: []
     };
   },
   methods: {
@@ -20978,30 +21001,96 @@ var render = function() {
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
   return _c("div", [
-    _c("input", {
-      directives: [
-        {
-          name: "model",
-          rawName: "v-model",
-          value: _vm.searchTerm,
-          expression: "searchTerm"
-        }
-      ],
-      staticClass: "w-64 mr-6 bg-gray-200 border rounded",
-      attrs: { type: "text", placeholder: "search", id: "searchTerm" },
-      domProps: { value: _vm.searchTerm },
-      on: {
-        input: [
-          function($event) {
-            if ($event.target.composing) {
-              return
+    _vm.focus
+      ? _c("div", {
+          staticClass:
+            "bg-black opacity-25 absolute right-0 left-0 top-0 bottom-0 z-10",
+          on: {
+            click: function($event) {
+              _vm.focus = false
             }
-            _vm.searchTerm = $event.target.value
+          }
+        })
+      : _vm._e(),
+    _vm._v(" "),
+    _c("div", { staticClass: "relative z-10" }, [
+      _c("input", {
+        directives: [
+          {
+            name: "model",
+            rawName: "v-model",
+            value: _vm.searchTerm,
+            expression: "searchTerm"
+          }
+        ],
+        staticClass: "w-64 mr-6 bg-gray-200 border rounded",
+        attrs: { type: "text", placeholder: "search", id: "searchTerm" },
+        domProps: { value: _vm.searchTerm },
+        on: {
+          input: [
+            function($event) {
+              if ($event.target.composing) {
+                return
+              }
+              _vm.searchTerm = $event.target.value
+            },
+            _vm.search
+          ],
+          focus: function($event) {
+            _vm.focus = true
+          }
+        }
+      })
+    ]),
+    _vm._v(" "),
+    _vm.focus
+      ? _c(
+          "div",
+          {
+            staticClass:
+              "absolute bg-blue-900 text-white rounded-lg p-4 w-96 right-0 mr-6 mt-2 shadow z-20"
           },
-          _vm.search
-        ]
-      }
-    })
+          [
+            _vm.results == 0
+              ? _c("div", [_vm._v("norezults found " + _vm._s(_vm.searchTerm))])
+              : _vm._e(),
+            _vm._v(" "),
+            _vm._l(_vm.results, function(result) {
+              return _c(
+                "div",
+                {
+                  key: result.id,
+                  on: {
+                    click: function($event) {
+                      _vm.focus = false
+                    }
+                  }
+                },
+                [
+                  _c("router-link", { attrs: { to: result.links.self } }, [
+                    _c(
+                      "div",
+                      { staticClass: "flex items-center" },
+                      [
+                        _c("UserCircle", { attrs: { name: result.data.name } }),
+                        _vm._v(" "),
+                        _c("div", { staticClass: "pl-3" }, [
+                          _c("p", [_vm._v(_vm._s(result.data.name))]),
+                          _vm._v(" "),
+                          _c("p", [_vm._v(_vm._s(result.data.company))])
+                        ])
+                      ],
+                      1
+                    )
+                  ])
+                ],
+                1
+              )
+            })
+          ],
+          2
+        )
+      : _vm._e()
   ])
 }
 var staticRenderFns = []
